@@ -47,7 +47,7 @@ django-crispy-forms==2.5
 django-extensions==4.1
 django-filter==25.2
 django-taggit==6.1.0
-djangorestframework==3.16.0
+djangorestframework==3.16.1
 idna==3.11
 importlib_metadata==8.7.0
 lxml==6.0.2
