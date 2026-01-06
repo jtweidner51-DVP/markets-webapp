@@ -1,0 +1,32 @@
+{% extends "base_menu.html" %}
+{% block content %}
+<h1>Ads</h1>
+<p>
+{% if ad_list %}
+<ul>
+  {% for ad in ad_list %}
+    <li>
+        <a href="{% url 'mkt:ad_detail'  ad.id %}">{{ ad.title }}</a>
+        {% if ad.owner == user %}
+        (<a href="{% url 'mkt:ad_update' ad.id %}">Edit</a> |
+        <a href="{% url 'mkt:ad_delete' ad.id %}">Delete</a>)
+        {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p>There are no advertss in the database numb-nuts.</p>
+{% endif %}
+</p>
+<p>
+<a href="{% url 'mkt:ad_create' %}">Add an Ad</a> |
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'logout' %}" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
+{% else %}
+<a href="{% url 'login' %}?next={% url 'mkt:all' %}">Login</a>
+{% endif %}
+</p>
+{% endblock %}

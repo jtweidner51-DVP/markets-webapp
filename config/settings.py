@@ -18,9 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-APP_NAME = "Chuck's Marketplace"   # Change
+APP_NAME = "Weeners's Marketplace"   # Changed!
 
-DJ4E_CODE = '42'
+DJ4E_CODE = 'c56c079e8f3225bc41cfd974a55b1783'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-yb3=cy&k285b#=!h42%bf+g*07v4lrr+l)fj+_tf1e348fpnkj"
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'social_django',
     'taggit',
     'home.apps.HomeConfig',
+    'mkt.apps.MktConfig',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -102,10 +103,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'drchuck$market',
-        'USER': 'drchuck',
-        'PASSWORD': 'phone_153742',
-        'HOST': 'drchuck.mysql.pythonanywhere-services.com',
+        'NAME': 'Jankovitch$market',
+        'USER': 'Jankovitch',
+        'PASSWORD': 'W4G#trJ9NfrH594',
+        'HOST': 'jankovitch.mysql.pythonanywhere-services.com',
          'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
@@ -113,12 +114,12 @@ DATABASES = {
 }
 
 # Comment this use of Sqlite out so your application uses MySQL
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+#DATABASES = {
+#    "default": {
+#        "ENGINE": "django.db.backends.sqlite3",
+#        "NAME": BASE_DIR / "db.sqlite3",
+#    }
+#}
 
 
 # Password validation
@@ -180,3 +181,4 @@ AUTHENTICATION_BACKENDS = (
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+LOGOUT_REDIRECT_URL = 'mkt:all'  # or wherever you want to redirect
