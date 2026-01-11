@@ -1,16 +1,18 @@
 #from django.shortcuts import render
 
 # Create your views here.
-from mkt.models import Ad
+from mkt.models import Ad,Comment
 from mkt.owner import OwnerListView, OwnerDetailView, OwnerCreateView, OwnerUpdateView, OwnerDeleteView
 #v2 start
 from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.urls import reverse
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from mkt.forms import CreateForm
+from mkt.forms import CommentForm
 # V2 end
 
 class AdListView(OwnerListView):
@@ -22,6 +24,12 @@ class AdListView(OwnerListView):
 class AdDetailView(OwnerDetailView):
     model = Ad
     template_name = "mkt/ad_detail.html"
+    def get(self, request, pk) :
+        x = get_object_or_404(Ad, id=pk)
+        comments = Comment.objects.filter(ad=x).order_by('-updated_at')
+        comment_form = CommentForm()
+        context = { 'ad' : x, 'comments': comments, 'comment_form': comment_form }
+        return render(request, self.template_name, context)
 
 class AdCreateView(LoginRequiredMixin, View):
     #v1 code: model = Ad
@@ -48,11 +56,9 @@ class AdCreateView(LoginRequiredMixin, View):
         Ad.save()
         return redirect(self.success_url)
 
-
-
 class AdUpdateView(LoginRequiredMixin, View):
-    #model = Ad
-    #fields = ['title', 'price', 'text']
+    model = Ad
+    fields = ['title', 'price', 'text']
     template_name = 'mkt/ad_form.html'
     success_url = reverse_lazy('mkt:all')
 
@@ -79,6 +85,25 @@ class AdUpdateView(LoginRequiredMixin, View):
 class AdDeleteView(OwnerDeleteView):
     model = Ad
     template_name="mkt/ad_confirm_delete.html"
+
+#New stuff for the comments in release 3 starts here
+class CommentCreateView(LoginRequiredMixin, View):
+    def post(self, request, pk) :
+        f = get_object_or_404(Ad, id=pk)
+        comment = Comment(text=request.POST['comment'], owner=request.user, ad=f)
+        comment.save()
+        return redirect(reverse('mkt:ad_detail', args=[pk]))
+
+class CommentDeleteView(OwnerDeleteView):
+    model = Comment
+    template_name = "mkt/ad_comment_delete.html"
+
+    # https://stackoverflow.com/questions/26290415/deleteview-with-a-dynamic-success-url-dependent-on-id
+    def get_success_url(self):
+        ad = self.object.ad
+        return reverse('mkt:ad_detail', args=[ad.id])
+
+#New stuff for the comments in release 3 ends here
 
 def stream_file(request, pk):
     ad = get_object_or_404(Ad, id=pk)
