@@ -1,7 +1,7 @@
 #from django.shortcuts import render
 
 # Create your views here.
-from mkt.models import Ad,Comment
+from mkt.models import Ad,Comment, Fav
 from mkt.owner import OwnerListView, OwnerDetailView, OwnerCreateView, OwnerUpdateView, OwnerDeleteView
 #v2 start
 from django.views import View
@@ -19,7 +19,16 @@ class AdListView(OwnerListView):
     model = Ad
     # By convention:
     template_name = "mkt/ad_list.html"
-
+    #Code for release 4: Retreive the list of favourites for the current user
+    def get(self, request) :
+        ad_list = Ad.objects.all()
+        favorites = list()
+        if request.user.is_authenticated:
+            # rows = [{'id': 2}, {'id': 4} ... ]  (A list of rows)
+            favorites = list(request.user.favwc_favorite_ads.values_list('ad__id', flat=True))
+        print(favorites)
+        ctx = {'ad_list' : ad_list, 'favorites': favorites}
+        return render(request, self.template_name, ctx)
 
 class AdDetailView(OwnerDetailView):
     model = Ad
@@ -112,3 +121,24 @@ def stream_file(request, pk):
     response['Content-Length'] = len(ad.picture)
     response.write(ad.picture)
     return response
+
+#New version 4 stuff
+#Favourrite code for the toggling of the favourites to update the database:
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.db.utils import IntegrityError
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdToggleView(LoginRequiredMixin, View):
+    # Add get for manual retrieval
+
+    def post(self, request, pk) :
+        t = get_object_or_404(Ad, id=pk)
+        fav = Fav(user=request.user, ad=t)
+        try:
+            fav.save()
+            return HttpResponse("Favorite added 42")
+        except IntegrityError:  # Already there, lets delete...
+            Fav.objects.get(user=request.user, ad=t).delete()
+            return HttpResponse("Favorite deleted 42")
+        return HttpResponse("Something went wrong")

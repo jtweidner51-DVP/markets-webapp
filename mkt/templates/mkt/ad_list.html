@@ -11,11 +11,18 @@
         (<a href="{% url 'mkt:ad_update' ad.id %}">Edit</a> |
         <a href="{% url 'mkt:ad_delete' ad.id %}">Delete</a>)
         {% endif %}
+        {% if user.is_authenticated %}
+        <dj4e-favstar
+            onclick="favToggle(this, '{% url 'mkt:ad_toggle' ad.id %}');"
+            {% if ad.id in favorites %} fav {% endif %}
+        >
+        </dj4e-favstar>
+        {% endif %}
     </li>
   {% endfor %}
 </ul>
 {% else %}
-  <p>There are no advertss in the database numb-nuts.</p>
+  <p>There are no adverts in the database numb-nuts.</p>
 {% endif %}
 </p>
 <p>
@@ -29,4 +36,29 @@
 <a href="{% url 'login' %}?next={% url 'mkt:all' %}">Login</a>
 {% endif %}
 </p>
+
+{# New javascript to toggle the ads when the stars  are clicked  #}
+<script>
+function favToggle(element, url) {
+    console.log('POSTing to', url);
+    fetch(url, { method: 'POST', body: '{}' } )
+    .then((response) => {
+        if (!response.ok) {
+            console.log("If you see this error, it is likely in ToggleFavoriteView()");
+            console.log("Note: It is easier to diagnose this error FireFox.");
+            throw new Error(`AJAX/fetch error status: ${response.status}, see developer console.`)
+        }
+        return response.text();
+    })
+    .then((response) => {
+        console.log(url, response);
+        element.toggleAttribute('fav');
+    }).catch((error) => {
+        alert(`Url ${url} failed ${error}`);
+    });
+}
+</script>
+
+<script type="module" src="/site/wc/dj4e-favstar.js"></script>
+
 {% endblock %}
