@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from django.urls import reverse
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
 from mkt.forms import CreateForm
 from mkt.forms import CommentForm
@@ -21,13 +22,26 @@ class AdListView(OwnerListView):
     template_name = "mkt/ad_list.html"
     #Code for release 4: Retreive the list of favourites for the current user
     def get(self, request) :
-        ad_list = Ad.objects.all()
+        #search box code:
+        strval = request.GET.get("search", "")
+        if strval:
+            # Search for ads where title contains the search term (case-insensitive)
+            #ad_list = Ad.objects.filter(title__icontains=strval)
+            # Multi-field search
+            # __icontains for case-insensitive search
+            query = Q(title__icontains=strval)
+            query.add(Q(text__icontains=strval), Q.OR)
+            ad_list = Ad.objects.filter(query)
+        else:
+            # No search - show all ads
+            ad_list = Ad.objects.all()
+
         favorites = list()
         if request.user.is_authenticated:
             # rows = [{'id': 2}, {'id': 4} ... ]  (A list of rows)
             favorites = list(request.user.favwc_favorite_ads.values_list('ad__id', flat=True))
         print(favorites)
-        ctx = {'ad_list' : ad_list, 'favorites': favorites}
+        ctx = {'ad_list' : ad_list, 'favorites': favorites, 'search':strval}
         return render(request, self.template_name, ctx)
 
 class AdDetailView(OwnerDetailView):

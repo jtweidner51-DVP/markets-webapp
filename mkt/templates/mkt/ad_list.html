@@ -1,5 +1,13 @@
 {% extends "base_menu.html" %}
 {% block content %}
+<!-- Add the search form here -->
+<form method="get" style="float:right; margin-bottom: 20px;">
+    <input type="text" name="search" value="{{ search }}" placeholder="Search ad titles..." size="40">
+    <button type="submit"><i class="fa fa-search"></i></button>
+    {% if search %}
+        <a href="{% url 'mkt:all' %}"><i class="fa fa-undo"></i></a>
+    {% endif %}
+</form>
 <h1>Ads</h1>
 <p>
 {% if ad_list %}
